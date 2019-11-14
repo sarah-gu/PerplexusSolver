@@ -18,8 +18,9 @@ args = vars(ap.parse_args())
 # define the lower and upper boundaries of the "green"
 # ball in the HSV color space, then initialize the
 # list of tracked points
-greenLower = (52,0,4) #silver ball hsv
-greenUpper= (179,255,203)
+#greenLower = (52,0,4) #silver ball hsv
+#greenUpper= (179,255,203)
+
 #greenLower = (0,106,226)
 #greenUpper= (179,255,255)#orange ball hsv
 pts = deque(maxlen=args["buffer"])
@@ -64,10 +65,10 @@ while True:
     mask = cv2.dilate(mask, None, iterations=2)
 
     gray = cv2.bitwise_and(frame,frame, mask= mask)
-
+    print(type(gray))
     gray = cv2.medianBlur(gray, 5)
     rows = gray.shape[0]
-    circles = cv2.HoughCircles(gray, cv2.HOUGH_GRADIENT, 1, rows / 8, param1=100, param2=30, minRadius=1, maxRadius=30)
+    circles = cv2.HoughCircles(frame, cv2.HOUGH_GRADIENT, 1, rows / 8, param1=100, param2=30, minRadius=1, maxRadius=30)
 	
     if circles is not None:
         circles = np.uint16(np.around(circles))

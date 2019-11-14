@@ -1,0 +1,2 @@
+(hMin = 0 , sMin = 0, vMin = 55), (hMax = 175 , sMax = 71, vMax = 138)
+
