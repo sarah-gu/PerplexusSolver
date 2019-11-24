@@ -1,4 +1,6 @@
 # import the necessary packages
+from gpiozero import LED
+from time import sleep
 from collections import deque
 from imutils.video import VideoStream
 import numpy as np
@@ -14,6 +16,7 @@ ap.add_argument("-v", "--video",
 ap.add_argument("-b", "--buffer", type=int, default=64,
                 help="max buffer size")
 args = vars(ap.parse_args())
+
 # define the lower and upper boundaries of the "green"
 # ball in the HSV color space, then initialize the
 # list of tracked points
@@ -36,6 +39,7 @@ else:
 
 # allow the camera or video file to warm up
 time.sleep(2.0)
+red = LED(17)
 
 ret = True
 # keep looping
@@ -110,7 +114,11 @@ while True :
         # show the frame to our screen
     cv2.imshow("Frame", frame)
     key = cv2.waitKey(1) & 0xFF
-        
+    red.on()
+    print("This works!!" )
+    sleep(1)
+    red.off()
+    sleep(1)
         # if the 'q' key is pressed, stop the loop
     if key == ord("q"):
         break
@@ -125,5 +133,6 @@ else:
 
 # close all windows
 cv2.destroyAllWindows()
+
 
 
