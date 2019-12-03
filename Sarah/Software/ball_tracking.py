@@ -28,12 +28,13 @@ pts = deque(maxlen=args["buffer"])
 # if a video path was not supplied, grab the reference
 # to the webcam
 if not args.get("video", False):
-    vs = cv2.VideoCapture("http://192.168.12.186/live?type=out.mp4")
+    #vs = cv2.VideoCapture("http://192.168.12.186/live?type=out.mp4")
+    vs = cv2.VideoCapture("http://192.168.1.159/live?type=out.mp4")
 
 # otherwise, grab a reference to the video file
 else:
-    vs = cv2.VideoCapture("https://192.168.12.186/live?type=out.mp4")
-
+#vs = cv2.VideoCapture("https://192.168.12.186/live?type=out.mp4")
+    vs = cv2.VideoCapture("http://192.168.1.159/live?type=out.mp4")
 # allow the camera or video file to warm up
 time.sleep(2.0)
 
