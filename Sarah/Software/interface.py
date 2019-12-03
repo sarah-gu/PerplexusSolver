@@ -9,6 +9,7 @@ import cv2
 import imutils
 import time
 import tkinter as tk
+from PIL import Image, ImageTk
 # construct the argument parse and parse the arguments
 ap = argparse.ArgumentParser()
 ap.add_argument("-v", "--video",
@@ -17,9 +18,7 @@ ap.add_argument("-b", "--buffer", type=int, default=64,
                 help="max buffer size")
 args = vars(ap.parse_args())
 
-# define the lower and upper boundaries of the "green"
-# ball in the HSV color space, then initialize the
-# list of tracked points
+
 #greenLower = (34,41,136) #silver ball hsv
 #greenUpper= (116,255,255)
 greenLower = (12,50,213) #silver ball hsv
@@ -28,100 +27,85 @@ greenUpper= (42, 255, 255)
 #greenUpper= (179,255,255)#orange ball hsv
 pts = deque(maxlen=args["buffer"])
 
-# if a video path was not supplied, grab the reference
-# to the webcam
+
 if not args.get("video", False):
 #vs = cv2.VideoCapture("http://192.168.12.186/live?type=out.mp4")
     vs = VideoStream(src=0).start()
 
-# otherwise, grab a reference to the video file
+#vid is saved
 else:
 #vs = cv2.VideoCapture("https://192.168.12.186/live?type=out.mp4")
     vs = VideoStream(src=0).start()
-# allow the camera or video file to warm up
+
 time.sleep(2.0)
 #red = LED(17)
 
 master = tk.Tk()
 ret = True
-# keep looping
+
 def callback():
     print ("click!")
 
 b = tk.Button(master, text="OK", command=callback)
-b.pack()
+imageFrame = tk.Frame(master, width=600, height=500)
+imageFrame.grid(row=0, column=0, padx=10, pady=2)
 
-# grab the current frame
-frame = vs.read()
+b.grid(row = 600, column=0, padx=10, pady=2)
 
-#cv2.imshow("Frame", frame)
-# handle the frame from VideoCapture or VideoStream
-frame = frame[1] if args.get("video", False) else frame
+lmain = tk.Label(imageFrame)
+lmain.grid(row=0, column=0)
+def show_frame():
+    frame = vs.read()
 
+    #cv2.imshow("Frame", frame)
 
-# resize the frame, blur it, and convert it to the HSV
-# color space
-frame = imutils.resize(frame, width=600)
-#frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-blurred = cv2.GaussianBlur(frame, (11, 11), 0)
-hsv = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
+    frame = frame[1] if args.get("video", False) else frame
 
-# construct a mask for the color "green", then perform
-# a series of dilations and erosions to remove any small
-# blobs left in the mask
-mask = cv2.inRange(hsv, greenLower, greenUpper)
-mask = cv2.erode(mask, None, iterations=2)
-mask = cv2.dilate(mask, None, iterations=2)
-# find contours in the mask and initialize the current
-# (x, y) center of the ball
-cnts = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL,
-                        cv2.CHAIN_APPROX_SIMPLE)
-cnts = imutils.grab_contours(cnts)
-center = None
+    frame = imutils.resize(frame, width=600)
+    #frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    blurred = cv2.GaussianBlur(frame, (11, 11), 0)
+    hsv = cv2.cvtColor(blurred, cv2.COLOR_BGR2HSV)
 
-                            # only proceed if at least one contour was found
-if len(cnts) > 0:
-    # find the largest contour in the mask, then use
-    # it to compute the minimum enclosing circle and
-    # centroid
-    c = max(cnts, key=cv2.contourArea)
-    ((x, y), radius) = cv2.minEnclosingCircle(c)
-    M = cv2.moments(c)
-    center = (int(M["m10"] / M["m00"]), int(M["m01"] / M["m00"]))
+    mask = cv2.inRange(hsv, greenLower, greenUpper)
+    mask = cv2.erode(mask, None, iterations=2)
+    mask = cv2.dilate(mask, None, iterations=2)
     
-        # only proceed if the radius meets a minimum size
-    if radius > 10:
-            # draw the circle and centroid on the frame,
-            # then update the list of tracked points
-        cv2.circle(frame, (int(x), int(y)), int(radius),
-                       (0, 255, 255), 2)
-        cv2.circle(frame, center, 5, (0, 0, 255), -1)
+    cnts = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL,
+                            cv2.CHAIN_APPROX_SIMPLE)
+    cnts = imutils.grab_contours(cnts)
+    center = None
 
-# update the points queue
-pts.appendleft(center)
+    if len(cnts) > 0:
 
-
-# loop over the set of tracked points
-for i in range(1, len(pts)):
-    # if either of the tracked points are None, ignore
-    # them
-    if pts[i - 1] is None or pts[i] is None:
-        continue
+        c = max(cnts, key=cv2.contourArea)
+        ((x, y), radius) = cv2.minEnclosingCircle(c)
+        M = cv2.moments(c)
+        center = (int(M["m10"] / M["m00"]), int(M["m01"] / M["m00"]))
         
-        # otherwise, compute the thickness of the line and
-        # draw the connecting lines
-        thickness = int(np.sqrt(args["buffer"] / float(i + 1)) * 2.5)
-        cv2.line(frame, pts[i - 1], pts[i], (0, 0, 255), thickness)
+        if radius > 10:
+            cv2.circle(frame, (int(x), int(y)), int(radius),
+                           (0, 255, 255), 2)
+            cv2.circle(frame, center, 5, (0, 0, 255), -1)
 
-    # show the frame to our screen
-cv2.imshow("Frame", frame)
-key = cv2.waitKey(1) & 0xFF
+    pts.appendleft(center)
+    for i in range(1, len(pts)):
+        if pts[i - 1] is None or pts[i] is None:
+            continue
+            thickness = int(np.sqrt(args["buffer"] / float(i + 1)) * 2.5)
+            cv2.line(frame, pts[i - 1], pts[i], (0, 0, 255), thickness)
+    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    img = Image.fromarray(frame)
+    imgtk = ImageTk.PhotoImage(image=img)
+    lmain.imgtk = imgtk
+    lmain.configure(image=imgtk)
+    lmain.after(10, show_frame)
+#key = cv2.waitKey(1) & 0xFF
 #red.on()
 #print("This works!!" )
 #sleep(1)
 #red.off()
 sleep(1)
-
+show_frame()
 
 tk.mainloop()
 # if we are not using a video file, stop the camera video stream
