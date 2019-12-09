@@ -10,6 +10,7 @@ import imutils
 import time
 import tkinter as tk
 from PIL import Image, ImageTk
+from tkinter import ttk
 # construct the argument parse and parse the arguments
 ap = argparse.ArgumentParser()
 ap.add_argument("-v", "--video",
@@ -43,15 +44,28 @@ time.sleep(2.0)
 master = tk.Tk()
 ret = True
 
+def controlgpio():
+    print("to be implemented")
+#    red.on()
+#    print("This works!!" )
+#    sleep(1)
+#    red.off()
+def reset():
+    print ("to be implemented")
+
 def callback():
     print ("click!")
 
 b = tk.Button(master, text="OK", command=callback)
+gpiobutton = tk.Button(master, text="Move", command=controlgpio)
+reset = tk.Button(master, text="Reset to Start", command=reset)
+
 imageFrame = tk.Frame(master, width=600, height=500)
 imageFrame.grid(row=0, column=0, padx=10, pady=2)
 
-b.grid(row = 600, column=0, padx=10, pady=2)
-
+b.grid(row = 0, column=1, padx=0, pady=0)
+gpiobutton.grid(row=0, column = 2, padx = 0, pady = 0)
+reset.grid(row=0, column = 3, padx = 0, pady = 0)
 lmain = tk.Label(imageFrame)
 lmain.grid(row=0, column=0)
 def show_frame():
@@ -100,10 +114,7 @@ def show_frame():
     lmain.configure(image=imgtk)
     lmain.after(10, show_frame)
 #key = cv2.waitKey(1) & 0xFF
-#red.on()
-#print("This works!!" )
-#sleep(1)
-#red.off()
+
 sleep(1)
 show_frame()
 
