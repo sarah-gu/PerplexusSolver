@@ -1,5 +1,6 @@
 # import the necessary packages
 from gpiozero import LED
+from gpiozero import OutputDevice as stepper
 from time import sleep
 from collections import deque
 from imutils.video import VideoStream
@@ -31,8 +32,8 @@ pts = deque(maxlen=args["buffer"])
 
 if not args.get("video", False):
     #vs = cv2.VideoCapture("http://192.168.12.186/live?type=out.mp4")
-    vs = cv2.VideoCapture("http://192.0.0.1/live?type=out.mp4")
-#vs = VideoStream(src=0).start()
+#vs = cv2.VideoCapture("http://192.0.0.1/live?type=out.mp4")
+    vs = VideoStream(src=0).start()
 
 #vid is saved
 else:
@@ -40,16 +41,46 @@ else:
     vs = VideoStream(src=0).start()
 
 time.sleep(2.0)
-red = LED(17)
+
 
 master = tk.Tk()
 ret = True
 
 def controlgpio():
-    #print("to be implemented")
-    red.on()
-    print("This works!!" )
-#    sleep(1)
+#    GPIO.setmode(GPIO.BOARD)
+#    control_pins = [7,11,13,15]
+    IN1 = stepper(17)
+    IN2 = stepper(39)
+    IN3 = stepper(20)
+    IN4 = stepper(21)
+    stepDir  = -1
+    mode = 1
+    stepPins = [IN1,IN2,IN3,IN4]
+    seq = [
+                    [1,0,0,0],
+                    [1,1,0,0],
+                    [0,1,0,0],
+                    [0,1,1,0],
+                    [0,0,1,0],
+                    [0,0,1,1],
+                    [0,0,0,1],
+                    [1,0,0,1]
+                    ]
+    stepCount = len(seq)
+    stepCounter = 0
+    while True:                          # Start main loop
+        for pin in range(0,4):
+            xPin=stepPins[pin]          # Get GPIO
+            if seq[stepCounter][pin]!=0:
+                xPin.on()
+            else:
+                xPin.off()
+            stepCounter += stepDir
+            if (stepCounter >= stepCount):
+                stepCounter = 0
+            if (stepCounter < 0):
+                stepCounter = stepCount+stepDir
+        time.sleep(waitTime)
 #    red.off()
 def reset():
     print ("to be implemented")
