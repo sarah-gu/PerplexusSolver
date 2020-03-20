@@ -95,14 +95,14 @@ layer_names = [layer_names[i[0] - 1] for i in net.getUnconnectedOutLayers()]
 if FLAGS.image_path is None and FLAGS.video is None:
     print ('Neither path to an image or path to video provided')
     print ('Starting Inference on Webcam')
-    vs = cv2.VideoCapture("http://192.168.1.159/live?type=out.mp4")
+# vs = cv2.VideoCapture("http://192.168.1.159/live?type=out.mp4") #IPCamera address
 #vs = cv2.VideoCapture("http://192.0.0.1/live?type=out.mp4")
-#vs = VideoStream(src=0).start()
+    vs = VideoStream(src=0).start()
 
 #vid is saved
 else:
 #vs = cv2.VideoCapture("https://192.168.12.186/live?type=out.mp4")
-    vs = VideoStream(src=0).start()
+    vs = VideoStream(src=0).start() #normal video camera
 
 time.sleep(2.0)
 
@@ -156,8 +156,8 @@ def callback():
 def show_frame():
     global count, boxes, confidences, classids, idxs
     print(count)
-    #frame = vs.read() #inference on computer video cam
-    ret, frame = vs.read() #inference on ipCamera
+    frame = vs.read() #inference on computer video cam
+    #ret, frame = vs.read() #inference on ipCamera
     
     #cv2.imshow("Frame", frame)
     
