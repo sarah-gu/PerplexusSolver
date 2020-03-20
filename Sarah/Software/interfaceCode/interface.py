@@ -101,8 +101,9 @@ reset.grid(row=0, column = 3, padx = 0, pady = 0)
 lmain = tk.Label(imageFrame)
 lmain.grid(row=0, column=0)
 def show_frame():
-    ret,frame = vs.read()
-
+    
+    frame = vs.read() #inference on computer video cam
+    #ret, frame = vs.read() #inference on ipCamera
     #cv2.imshow("Frame", frame)
 
     frame = frame[1] if args.get("video", False) else frame
