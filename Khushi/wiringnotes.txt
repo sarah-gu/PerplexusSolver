@@ -1,0 +1,17 @@
+RST and SLP pins need to go to 3.3V on RPi
+
+DIR pins can go to any GPIO out pins on the RPI
+
+Power supply 8.2 to 45 Volts
+
+VMOT to power supply positive terminal
+
+Keep motor power leads short
+Minimum 47 UF electrolytic capacitor across motor supply - negative is vertical stripe
+Cap w double the voltage rating
+
+Motor power supply positive wire shouldn't touch anything except the DRV
+
+Use VREF to determine supply limit
+run at ab .4
+
